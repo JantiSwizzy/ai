@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Janti Wallpaper Maker v8.5 Ultimate Deluxe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: black;
+      color: white;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    #wallpaper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.55) blur(0px);
+      transition: background-image 0.5s ease-in-out, filter 0.3s ease;
+      z-index: -2;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(3px);
+      z-index: -1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.6rem;
+      text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ff00ff, 0 0 25px #00ffff; }
+      to { text-shadow: 0 0 25px #00ffff, 0 0 50px #ff00ff; }
+    }
+
+    #controls {
+      position: absolute;
+      bottom: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    select, input[type="range"], button {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-family: 'Poppins';
+      cursor: pointer;
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff00ff, #00ffff);
+      color: white;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(45deg, #00ffff, #ff00ff);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 5px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+    }
+
+    #settingsPanel {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-shadow: 0 0 10px rgba(0,255,255,0.3);
+    }
+
+    #settingsPanel label {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="wallpaper"></div>
+  <div id="overlay"></div>
+
+  <h1>⚡ Janti Wallpaper Maker v8.5 Ultimate Deluxe</h1>
+
+  <div id="controls">
+    <select id="category">
+      <option value="araba">🚗 Araba</option>
+      <option value="doğa">🌲 Doğa</option>
+      <option value="deniz">🌊 Deniz</option>
+      <option value="uzay">🚀 Uzay</option>
+      <option value="şehir">🏙️ Şehir</option>
+      <option value="manzara">🌅 Manzara</option>
+    </select>
+    <button id="generate">🖼️ Oluştur</button>
+    <button id="download">⬇️ İndir</button>
+    <button id="slideshow">▶️ Slayt</button>
+  </div>
+
+  <div id="settingsPanel">
+    <label>🌀 Bulanıklık:</label>
+    <input type="range" id="blurRange" min="0" max="10" step="1" value="0">
+
+    <label>🎞️ Slayt Hızı (sn):</label>
+    <input type="range" id="speedRange" min="2" max="10" value="5">
+  </div>
+
+  <footer>© 2025 Janti Originall | Wallpaper Engine 🚀</footer>
+
+  <script>
+    const wallpaper = document.getElementById("wallpaper");
+    const generate = document.getElementById("generate");
+    const download = document.getElementById("download");
+    const category = document.getElementById("category");
+    const slideshow = document.getElementById("slideshow");
+    const blurRange = document.getElementById("blurRange");
+    const speedRange = document.getElementById("speedRange");
+
+    let currentWallpaper = "";
+    let slideInterval = null;
+    let slideSpeed = 5000;
+
+    const wallpapers = {
+      araba: [
+        "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d",
+        "https://images.unsplash.com/photo-1518552781809-876e43b322c7",
+        "https://images.unsplash.com/photo-1525609004556-c46c7d6cf023",
+        "https://images.unsplash.com/photo-1542362567-b07e54358753",
+        "https://images.unsplash.com/photo-1502877338535-766e1452684a",
+        "https://images.unsplash.com/photo-1485463611189-373fef1d7d9b",
+        "https://images.unsplash.com/photo-1504215680853-026ed2a45def",
+        "https://images.unsplash.com/photo-1549921296-3ecf9c3e96a0",
+        "https://images.unsplash.com/photo-1520583457224-aee11bad5112",
+        "https://images.unsplash.com/photo-1517949908111-54ae4c9c1a3d"
+      ],
+      doğa: [
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+        "https://images.unsplash.com/photo-1476610182048-b716b8518aae",
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+        "https://images.unsplash.com/photo-1500534623283-312aade485b7",
+        "https://images.unsplash.com/photo-1465101162946-4377e57745c3",
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e"
+      ],
+      deniz: [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98",
+        "https://images.unsplash.com/photo-1526481280690-906bdf8ce589",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+        "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
+        "https://images.unsplash.com/photo-1519608487953-e999c86e7455",
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98",
+        "https://images.unsplash.com/photo-1526481280690-906bdf8ce589"
+      ],
+      uzay: [
+        "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa",
+        "https://images.unsplash.com/photo-1462331940025-496dfbfc7564",
+        "https://images.unsplash.com/photo-1470364693235-a4c2e9563b43",
+        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
+        "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa",
+        "https://images.unsplash.com/photo-1454789548928-9efd52dc4031",
+        "https://images.unsplash.com/photo-1484244233201-29892afe6a2c",
+        "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d",
+        "https://images.unsplash.com/photo-1496024840928-4c417adf211d",
+        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
+      ],
+      şehir: [
+        "https://images.unsplash.com/photo-1494526585095-c41746248156",
+        "https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
+        "https://images.unsplash.com/photo-1508057198894-247b23fe5ade",
+        "https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
+        "https://images.unsplash.com/photo-1508057198894-247b23fe5ade",
+        "https://images.unsplash.com/photo-1494526585095-c41746248156",
+        "https://images.unsplash.com/photo-1486308510493-aa64833634ef",
+        "https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
+        "https://images.unsplash.com/photo-1508057198894-247b23fe5ade",
+        "https://images.unsplash.com/photo-1494526585095-c41746248156"
+      ],
+      manzara: [
+        "https://images.unsplash.com/photo-1519817650390-64a93db511aa",
+        "https://images.unsplash.com/photo-1526772662000-3f88f10405ff",
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+        "https://images.unsplash.com/photo-1500534623283-312aade485b7",
+        "https://images.unsplash.com/photo-1465101162946-4377e57745c3",
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+      ]
+    };
+
+    function showRandomWallpaper(cat) {
+      const randomIndex = Math.floor(Math.random() * wallpapers[cat].length);
+      currentWallpaper = `${wallpapers[cat][randomIndex]}?auto=format&fit=crop&w=1920&q=80`;
+      wallpaper.style.backgroundImage = `url('${currentWallpaper}')`;
+    }
+
+    generate.addEventListener("click", () => showRandomWallpaper(category.value));
+
+    download.addEventListener("click", () => {
+      if (!currentWallpaper) return alert("Önce bir duvar kağıdı oluştur 😉");
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = currentWallpaper;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        ctx.font = "60px italic Poppins";
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.textAlign = "right";
+        ctx.fillText("JantiOriginal", img.width - 40, img.height - 40);
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/jpeg");
+        link.download = "janti-wallpaper.jpg";
+        link.click();
+      };
+    });
+
+    slideshow.addEventListener("click", () => {
+      if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+        slideshow.textContent = "▶️ Slayt";
+      } else {
+        slideInterval = setInterval(() => showRandomWallpaper(category.value), slideSpeed);
+        slideshow.textContent = "⏸️ Durdur";
+      }
+    });
+
+    blurRange.addEventListener("input", () => {
+      wallpaper.style.filter = `brightness(0.55) blur(${blurRange.value}px)`;
+    });
+
+    speedRange.addEventListener("input", () => {
+      slideSpeed = speedRange.value * 1000;
+      if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(() => showRandomWallpaper(category.value), slideSpeed);
+      }
+    });
+
+    generate.click();
+  </script>
+</body>
+</html>
